@@ -1,0 +1,14 @@
+[project]
+name = "unbabel-backend-engineering-challenge"
+version = "0.1.0"
+description = "Unbabel Engineering Challenge for Backend candidates"
+authors = [
+    {name = "Ricardo Fernandes", email = "pdgrickerp@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm]
+package-type = "application"
