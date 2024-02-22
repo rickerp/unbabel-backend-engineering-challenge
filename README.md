@@ -14,6 +14,10 @@ You can see more information about the arguments by using the following command.
 python main.py --help
 ```
 
+## Assumptions
+
+* When in the scenario it is said "(...) calculating, for every minute, a moving average of the translation delivery time for the last X minutes", if the minute being considered is the _minute 20_ and _X is equal to 10_ if there is an event in the timestamp 10m00.000s it will not be considered - Exclusive at the start of the interval. (Check `test_exclusive_start_assumption` test in [test.py](test.py))
+
 ## Testing
 
 There are a few input examples in the [inputoutput folder](./inputoutput) which are used when testing in the [test.py file](test.py). You can run the tests by running the following command:
@@ -34,12 +38,13 @@ There are a few performance tests which were run providing the following results
 | 100 000  | 100         | 1m38s        |
 
 ## Relevant Files
-
-├── [inputoutput](./inputoutput)  - Input and outputs examples used for testing.  
-│   ├── big-...  - These are big examples which are only generated once the stress tests are ran. 
-│   ├── [gen.py](./inputoutput/gen.py)   - Generator for input examples. 
-├── [main.py](./main.py)		 - Main file
-└── [test.py](./test.py)		 - Test file
+```shell
+├── inputoutput  # Input and outputs examples used for testing
+│   ├── big-...  # These are big examples which are only generated once the stress tests are ran
+│   ├── gen.py   # Generator for input examples
+├── main.py		 # Main file
+└── test.py		 # Test file
+```
 
 ## Challenge Introduction
 
