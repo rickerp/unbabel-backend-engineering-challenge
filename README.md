@@ -1,5 +1,47 @@
-# Backend Engineering Challenge
+# Backend Engineering Challenge (Solution)
 
+## Running
+
+No setup needed. Just simply run the `main.py` file with the arguments.
+
+Example:
+```shell
+python main.py --input_file tests/inputoutput/example/input.json --window_size 10
+```
+
+You can see more information about the arguments by using the following command.
+```shell
+python main.py --help
+```
+
+## Testing
+
+There are a few input examples in the [inputoutput folder](./inputoutput) which are used when testing in the [test.py file](test.py). You can run the tests by running the following command:
+```shell
+python -m unittest test.py
+```
+
+### Results 
+
+There are a few performance tests which were run providing the following results:
+| # Events | Window Size | Elapsed Time |
+| -------- | ----------- | ------------ |
+| 3        | 10          | 1ms          |
+| 1 000    | 10          | 18ms         |
+| 10 000   | 10          | 975ms        |
+| 100 000  | 10          | 1m38s        |
+| 100 000  | 1           | 1m38s        |
+| 100 000  | 100         | 1m38s        |
+
+## Relevant Files
+
+├── [inputoutput](./inputoutput)  - Input and outputs examples used for testing.  
+│   ├── big-...  - These are big examples which are only generated once the stress tests are ran. 
+│   ├── [gen.py](./inputoutput/gen.py)   - Generator for input examples. 
+├── [main.py](./main.py)		 - Main file
+└── [test.py](./test.py)		 - Test file
+
+## Challenge Introduction
 
 Welcome to our Engineering Challenge repository 🖖
 

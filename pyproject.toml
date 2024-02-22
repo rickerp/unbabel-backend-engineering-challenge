@@ -12,3 +12,9 @@ license = {text = "MIT"}
 
 [tool.pdm]
 package-type = "application"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "autopep8>=2.0.4",
+    "coverage>=7.4.2",
+]
