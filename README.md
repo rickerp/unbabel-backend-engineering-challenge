@@ -2,7 +2,15 @@
 
 ## Running
 
-No setup needed. Just simply run the `main.py` file with the arguments.
+This project was implemented using python 3.11.3 and [pdm package manager](https://github.com/pdm-project/pdm) - also helps with virtual environment management. There is **no need to install pdm** as only one non-builtin library was used, `ijson`. So, to setup, just simply install it in one of the following ways:
+```shell
+pip install ijson  # way 1
+pip install -r requirements.txt  # way 2
+
+pdm install  # with pdm - optional
+```
+
+Then to run, simply run the `main.py` file with your arguments.
 
 Example:
 ```shell
@@ -29,22 +37,31 @@ python -m unittest test.py
 
 ### Results 
 
-Some of these tests were actually generated to _stress test_ the program. This means that their actual result isn't verified, just its performace is considered (located in `inputoutput/big-*`). The following results were obtained when running these _stress tests_ in my machine (Macbook M1Pro 16GB RAM):
+Some of these tests were actually generated to _stress test_ the program. This means that their actual result isn't verified, just its performace is considered. These are located in `inputoutput/big-*` and are generated automatically in the test `setUpClass` fixture using the [gen.py file](inputoutput/gen.py). The following results were obtained when running these _stress tests_ in my machine (Macbook M1Pro 16GB RAM):
 
-| # Events    | Window Size | Elapsed Time |
-|-------------|-------------|--------------|
-| 3 (example) | 10          | 1ms          |
-| 1 000       | 10          | 33ms         |
-| 10 000      | 10          | 1s700ms      |
-| 100 000     | 10          | 3m03s        |
-| 100 000     | 1           | 2m52s        |
-| 100 000     | 100         | 2m55s        |
+| # Events    | Window Size | Elapsed Time | Old Version | Improvement |
+| ----------- | ----------- | ------------ | ----------- | ----------- |
+| 3 (example) | 10          | 1ms          | 1ms         | x1          |
+| 1 000       | 10          | 28ms         | 33ms        | x1.18       |
+| 10 000      | 10          | 263ms        | 1s700ms     | x6.46       |
+| 100 000     | 10          | 2s736ms      | 3m03s       | x66.9       |
+| 100 000     | 1           | 2s255ms      | 2m52s       | x76.3       |
+| 100 000     | 100         | 3s183ms      | 2m55s       | x55.0       |
+| 1 000 000   | 10          | 29s303ms     | -           | -           |
+
+## Analysis 
+
+The comparison clearly shows that the new version is significantly faster than the old one. The old version used a simple minute-by-minute iteration from the first to the last timestamp, checking a list of events each time to see if they fell within the window interval. After that, it checked the window interval event list for events that were no longer within the window interval. This process was quite slow, especially as the number of events increased. This was due to various reasons, one of which was that the input JSON file was being loaded entirely into memory at the start.
+
+On the other hand, the new version adopts a different approach. It reads one event at a time, using a Python generator to yield it, and then processes it in the main function. This approach significantly reduces memory usage and time complexity because the events are processed as they are read, without repeating a minute timestamp, as the events are ordered by timestamp.
+
 
 ## Relevant Files
 ```shell
-├── inputoutput  # Input and outputs examples used for testing
-│   ├── big-...  # These are big examples which are only generated once the stress tests are ran
-│   ├── gen.py   # Generator for input examples
+├── inputoutput 	# Input and outputs examples used for testing
+│   ├── big-... 	# These are big examples which are only generated once the stress tests are ran
+│   ├── gen.py 		# Generator for input examples
+│   └── ...			# Other examples created manually
 ├── main.py		 # Main file
 └── test.py		 # Test file
 ```

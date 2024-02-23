@@ -20,3 +20,7 @@ dev = [
     "autopep8>=2.0.4",
     "coverage>=7.4.2",
 ]
+
+[tool.pdm.scripts]
+unbabel_cli = "main.py"
+test = "python -m unittest test.py"

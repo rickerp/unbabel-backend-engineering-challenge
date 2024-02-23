@@ -1,8 +1,9 @@
-import json
-import ijson
 import argparse
+import json
 import typing as tp
 from datetime import datetime, timedelta
+
+import ijson
 
 
 class AverageDeliveryTimeDict(tp.TypedDict):
@@ -15,21 +16,28 @@ class Event(tp.TypedDict):
     duration: int
 
 
-def simple_avg(l: list[int]) -> float:
-    "Return the average of a list of integers."
+def simple_avg(l: list[int | float]) -> float:
+    """Return the average of a list of integers."""
     return sum(l) * 1.0 / len(l) if len(l) > 0 else 0
 
 
 def round_ceil_to_minute(dt: datetime) -> datetime:
-    "Round a datetime to the minute."
+    """
+    Round (ceiling) a datetime to the minute.
+    Example:
+    datetime(2022, 1, 1, 10, 30, 45) -> datetime(2022, 1, 1, 10, 31, 0)
+    datetime(2022, 1, 1, 10, 30, 0) -> datetime(2022, 1, 1, 10, 30, 0)
+    @param dt: Datetime to be rounded.
+    @return: Rounded datetime (to ceiling).
+    """
     floored_dt = dt.replace(second=0, microsecond=0)
     return floored_dt if dt == floored_dt else floored_dt + timedelta(minutes=1)
 
 
 def stream_events(stream_json_path: str) -> tp.Generator[Event, None, None]:
-    "From a given json file path, yields an event at a time once read."
-    with open(stream_json_path, "rb") as fp:
-        for prefix, parse_type, value in ijson.parse(fp):
+    """From a given json file path, yields an event at a time once read."""
+    with open(stream_json_path, "rb") as stream_fp:
+        for prefix, parse_type, value in ijson.parse(stream_fp):
             if parse_type == "start_map":
                 event: Event = {}
             if prefix.endswith(".timestamp"):
@@ -41,10 +49,11 @@ def stream_events(stream_json_path: str) -> tp.Generator[Event, None, None]:
 
 
 def average_delivery_time_by_minute(
-    events_stream: tp.Generator[Event, None, None], window_size: int
+        events_stream: tp.Generator[Event, None, None], window_size: int
 ) -> list[AverageDeliveryTimeDict]:
     """
-    From a given stream of events and a window size, return the average delivery time from the last window_size minutes (by each minute).
+    From a given stream of events and a window size, return the average delivery time from the last window_size minutes
+    (by each minute).
     @param events_stream: Stream of events - Generator which yields a dict event containing the timestamp and duration.
     @param window_size: Timeframe window size (in minutes).
     @return: List of dictionaries with the minute as a datetime and the average delivery time for that minute
@@ -63,27 +72,31 @@ def average_delivery_time_by_minute(
 
             avgs_by_minute.append({
                 "date": str(window_end),
-                "average_delivery_time": simple_avg([e_ww["duration"] for e_ww in within_window]),
+                "average_delivery_time": simple_avg([e_ww["duration"] for e_ww in within_window])
             })
             window_end += timedelta(minutes=1)
         within_window.append(event_i)
 
+    # In the case where no events are streamed
+    if len(avgs_by_minute) == 0:
+        return avgs_by_minute
+
     # Removal of last outdated events
-    while len(within_window) > 0 and \
-            within_window[0]["timestamp"] <= (window_end - timedelta(minutes=window_size)):
+    while len(within_window) > 0 and within_window[0]["timestamp"] <= (window_end - timedelta(minutes=window_size)):
         within_window.pop(0)
 
     # Assumption 2 - Start with an average time of 0 and end with the last event first minute contribution (README.md)
     avgs_by_minute = [
-        {"date": str(datetime.fromisoformat(avgs_by_minute[0]["date"]) -
-                     timedelta(minutes=1)), "average_delivery_time": 0},
+        {"date": str(datetime.fromisoformat(avgs_by_minute[0]["date"]) - timedelta(minutes=1)),
+         "average_delivery_time": 0},
         *avgs_by_minute,
-        {"date": str(window_end), "average_delivery_time": simple_avg([e_ww["duration"] for e_ww in within_window])},
+        {"date": str(window_end), "average_delivery_time": simple_avg([e_ww["duration"] for e_ww in within_window])}
     ]
     return avgs_by_minute
 
 
 def main(input_file: str, window_size: int):
+    """Main function to be called from the CLI and to be able to test."""
     return average_delivery_time_by_minute(stream_events(input_file), window_size)
 
 
@@ -92,9 +105,8 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Unbabel CLI")
     arg_parser.add_argument("--input_file", type=str, help="Input file path")
     arg_parser.add_argument("--window_size", type=int, help="Timeframe window size (in minutes)")
-    arg_parser.add_argument(
-        "--output_file", type=str, help="Output file path - if omitted will be in stdout", required=False, default=None
-    )
+    arg_parser.add_argument("--output_file", type=str, help="Output file path - if omitted will be in stdout",
+                            required=False, default=None)
     args = arg_parser.parse_args()
 
     avgs = main(args.input_file, args.window_size)
@@ -102,4 +114,5 @@ if __name__ == "__main__":
         with open(args.output_file, "w") as fp:
             json.dump(avgs, fp)
     else:
+        # If no output file is given, print to stdout
         print(json.dumps(avgs, indent=4))
