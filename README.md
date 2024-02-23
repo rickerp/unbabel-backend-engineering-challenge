@@ -32,7 +32,7 @@ python -m unittest test.py
 Some of these tests were actually generated to _stress test_ the program. This means that their actual result isn't verified, just its performace is considered (located in `inputoutput/big-*`). The following results were obtained when running these _stress tests_ in my machine (Macbook M1Pro 16GB RAM):
 
 | # Events    | Window Size | Elapsed Time |
-| ----------- | ----------- | ------------ |
+|-------------|-------------|--------------|
 | 3 (example) | 10          | 1ms          |
 | 1 000       | 10          | 33ms         |
 | 10 000      | 10          | 1s700ms      |
