@@ -1,0 +1,8 @@
+[
+    { "date": "2018-12-26 18:10:00", "average_delivery_time": 0 },
+    { "date": "2018-12-26 18:11:00", "average_delivery_time": 25 },
+    { "date": "2018-12-26 18:12:00", "average_delivery_time": 65 },
+    { "date": "2018-12-26 18:13:00", "average_delivery_time": 100 },
+    { "date": "2018-12-26 18:14:00", "average_delivery_time": 100 },
+    { "date": "2018-12-26 18:15:00", "average_delivery_time": 162.5 }
+]

@@ -1,22 +1,32 @@
 [
     {
-        "timestamp": "2018-12-26 18:11:00.000000",
+        "timestamp": "2018-12-26 18:09:23.903159",
         "translation_id": "5aa5b2f39f7254a75aa5",
         "source_language": "en",
         "target_language": "fr",
         "client_name": "airliberty",
         "event_name": "translation_delivered",
         "nr_words": 30,
-        "duration": 50
+        "duration": 25
     },
     {
-        "timestamp": "2018-12-26 18:20:19.903159",
+        "timestamp": "2018-12-26 18:11:00.000000",
         "translation_id": "5aa5b2f39f7254a75aa4",
         "source_language": "en",
         "target_language": "fr",
         "client_name": "airliberty",
         "event_name": "translation_delivered",
         "nr_words": 30,
-        "duration": 150
+        "duration": 75
+    },
+    {
+        "timestamp": "2018-12-26 18:21:00.000000",
+        "translation_id": "5aa5b2f39f7254a75aa4",
+        "source_language": "en",
+        "target_language": "fr",
+        "client_name": "airliberty",
+        "event_name": "translation_delivered",
+        "nr_words": 30,
+        "duration": 125
     }
 ]

@@ -16,7 +16,8 @@ python main.py --help
 
 ## Assumptions
 
-* When in the scenario it is said "(...) calculating, for every minute, a moving average of the translation delivery time for the last X minutes", if the minute being considered is the _minute 20_ and _X is equal to 10_ if there is an event in the timestamp 10m00.000s it will not be considered - Exclusive at the start of the interval. (Check `test_exclusive_start_assumption` test in [test.py](test.py))
+1. When in the scenario it is said "(...) calculating, for every minute, a moving average of the translation delivery time for the last X minutes", if the minute being considered is the _minute 20_ and _X (`window_size`) is equal to 10_ and there is an event with the timestamp *10m00.000s* and an event with *20m00.000s*, **only** the event with the timestamp *20m00.000s* will be considered - Interval exclusive at the start and inclusive at the end. (Check `test_assumption_1` test in [test.py](test.py))
+2. The **first line** of the output will always include an average delivery time of zero with the date of the last minute with this value before a relevant value appears. As for the **last line**, it will be first line where the last event contributes for the average of the minute. 
 
 ## Testing
 
