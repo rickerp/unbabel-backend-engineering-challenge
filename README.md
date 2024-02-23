@@ -21,22 +21,24 @@ python main.py --help
 
 ## Testing
 
-There are a few input examples in the [inputoutput folder](./inputoutput) which are used when testing in the [test.py file](test.py). You can run the tests by running the following command:
+There are a few input examples in the [inputoutput folder](./inputoutput) that were created manually with some special scenarios that I thought worth testing or were unique to some extent. These are used when running the tests of the [test.py file](test.py) which you can do by running the following command:
+
 ```shell
 python -m unittest test.py
 ```
 
 ### Results 
 
-There are a few performance tests which were run providing the following results:
-| # Events | Window Size | Elapsed Time |
-| -------- | ----------- | ------------ |
-| 3        | 10          | 1ms          |
-| 1 000    | 10          | 18ms         |
-| 10 000   | 10          | 975ms        |
-| 100 000  | 10          | 1m38s        |
-| 100 000  | 1           | 1m38s        |
-| 100 000  | 100         | 1m38s        |
+Some of these tests were actually generated to _stress test_ the program. This means that their actual result isn't verified, just its performace is considered (located in `inputoutput/big-*`). The following results were obtained when running these _stress tests_ in my machine (Macbook M1Pro 16GB RAM):
+
+| # Events    | Window Size | Elapsed Time |
+| ----------- | ----------- | ------------ |
+| 3 (example) | 10          | 1ms          |
+| 1 000       | 10          | 33ms         |
+| 10 000      | 10          | 1s700ms      |
+| 100 000     | 10          | 3m03s        |
+| 100 000     | 1           | 2m52s        |
+| 100 000     | 100         | 2m55s        |
 
 ## Relevant Files
 ```shell

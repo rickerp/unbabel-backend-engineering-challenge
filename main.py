@@ -17,6 +17,9 @@ class ParsedEvent:
         self.timestamp = datetime.fromisoformat(data["timestamp"])
         self.duration = data["duration"]
 
+    def __str__(self):
+        return f"ParsedEvent{{timestamp: {self.timestamp}, duration: {self.duration}}}"
+
 
 def simple_avg(l: list[int]) -> float:
     "Return the average of a list of integers."
@@ -43,12 +46,19 @@ def average_delivery_time_by_minute(events: list[ParsedEvent], window_size: int)
     last_event_added_index = -1  # Last event index (in the given list) that was added to the within_window list
     window_end = events[0].timestamp.replace(second=0, microsecond=0)  # End of the window that is being considered
 
-    LAST_MINUTE = events[-1].timestamp.replace(second=0, microsecond=0) + timedelta(
-        minutes=1
-    )  # Last minute to be considered
+    if events[0].timestamp == window_end:
+        avgs_output.append({
+            "date": str(window_end - timedelta(minutes=1)),
+            "average_delivery_time": 0
+        })
+
+    # Last minute to be considered
+    LAST_MINUTE = events[-1].timestamp.replace(second=0, microsecond=0)
+    if events[-1].timestamp != LAST_MINUTE:
+        LAST_MINUTE += timedelta(minutes=1)
+
     while window_end <= LAST_MINUTE:
         window_start = window_end - timedelta(minutes=window_size)  # Start of the window that is being considered
-
         # Add events that are within the window
         for new_event in events[last_event_added_index + 1:]:
             if new_event.timestamp > window_end:
@@ -57,7 +67,8 @@ def average_delivery_time_by_minute(events: list[ParsedEvent], window_size: int)
             last_event_added_index += 1
 
         # Remove events that are out of the window
-        for event in within_window:
+        while len(within_window) > 0:
+            event = within_window[0]
             if event.timestamp > window_start:
                 break
             within_window.remove(event)

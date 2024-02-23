@@ -39,41 +39,90 @@ class TestParseStream(TestCase):
 
 
 class TestAverageDeliveryTimeByMinute(TestCase):
+    def test_simple(self):
+        "Test the simple case with a 10 minutes window size."
+        result = average_delivery_time_by_minute(parse_stream("inputoutput/simple/input.json"), 10)
+        expected = load_json("inputoutput/simple/10-expected-output.json")
+
+        assert result == expected, "Result not as expected for the simple scenario (10 minutes window size)"
+
     def test_example(self):
-        events = parse_stream("inputoutput/example/input.json")
-        avgs = average_delivery_time_by_minute(events, 10)
-        exp_avgs = load_json("inputoutput/example/10-expected-output.json")
+        "Test the example case from the README.md with a 5, a 10 and 20 minutes window size."
 
-        assert avgs == exp_avgs, "Output does not match expected output for 10 minutes window size"
+        result_10 = average_delivery_time_by_minute(parse_stream("inputoutput/example/input.json"), 10)
+        expected_10 = load_json("inputoutput/example/10-expected-output.json")
+        assert result_10 == expected_10, "Result not as expected for README example (10 minutes window size)"
 
-    def test_example_with_20_window(self):
-        events = parse_stream("inputoutput/example/input.json")
-        avgs = average_delivery_time_by_minute(events, 20)
-        exp_avgs = load_json("inputoutput/example/20-expected-output.json")
+        result_20 = average_delivery_time_by_minute(parse_stream("inputoutput/example/input.json"), 20)
+        expected_20 = load_json("inputoutput/example/20-expected-output.json")
+        assert result_20 == expected_20, "Result not as expected for README example (20 minutes window size)"
 
-        assert avgs == exp_avgs, "Output does not match expected output for 20 minutes window size"
+        result_5 = average_delivery_time_by_minute(parse_stream("inputoutput/example/input.json"), 5)
+        expected_5 = load_json("inputoutput/example/5-expected-output.json")
+        assert result_5 == expected_5, "Result not as expected for README example (5 minutes window size)"
 
-    def test_example_with_5_window(self):
-        events = parse_stream("inputoutput/example/input.json")
-        avgs = average_delivery_time_by_minute(events, 5)
-        exp_avgs = load_json("inputoutput/example/5-expected-output.json")
+    def test_example_with_invalid_match(self):
+        "Test the example case from the README.md with an invalid expected (window_size 5)"
+        result = average_delivery_time_by_minute(parse_stream("inputoutput/example/input.json"), 5)
+        expected = load_json("inputoutput/example/5-not-expected-output.json")
+        assert result != expected, "Result shouldn't match the non expected json (5 minutes window size)"
 
-        assert avgs == exp_avgs, "Output does not match expected output for 5 minutes window size"
+    def test_zero_seconds_event(self):
+        "Test the case where an event has 0 seconds (and microseconds) in the timestamp."
 
-    def test_example_with_5_window_invalid_match(self):
-        events = parse_stream("inputoutput/example/input.json")
-        avgs = average_delivery_time_by_minute(events, 5)
-        exp_avgs = load_json("inputoutput/example/5-invalid-expected-output.json")
+        result_simple = average_delivery_time_by_minute(parse_stream(
+            "inputoutput/zero-seconds-event-simple/input.json"), 10)
+        expected_simple = load_json("inputoutput/zero-seconds-event-simple/10-expected-output.json")
+        assert result_simple == expected_simple, "Result not expected for the 0 seconds event simple scenario (10 minutes window size)"
 
-        assert avgs != exp_avgs, "Output shouldn't match the expected output (window size 5)"
+        result_begin = average_delivery_time_by_minute(parse_stream(
+            "inputoutput/zero-seconds-event-begin/input.json"), 10)
+        expected_begin = load_json("inputoutput/zero-seconds-event-begin/10-expected-output.json")
+        assert result_begin == expected_begin, "Result not expected for the 0 seconds event beggining scenario (10 minutes window size)"
 
-    def test_exclusive_start_assumption(self):
-        events = parse_stream("inputoutput/exclusive-start-assumption/input.json")
-        avgs = average_delivery_time_by_minute(events, 10)
+        result_end = average_delivery_time_by_minute(parse_stream("inputoutput/zero-seconds-event-end/input.json"), 10)
+        expected_end = load_json("inputoutput/zero-seconds-event-end/10-expected-output.json")
+        assert result_end == expected_end, "Result not expected for the 0 seconds event ending scenario (10 minutes window size)"
 
-        assert avgs[-1]["average_delivery_time"] == events[1].duration, \
-            f"Last minute average shouldn't consider the first event as it's timestamp {events[0].timestamp} \
-                and the minute being considered is {avgs[-1]['date']} and we are assumming the interval as exclusive start."
+    def test_same_minute_events(self):
+        "Test the case where multiple events are within the same minute."
+
+        result_simple = average_delivery_time_by_minute(parse_stream(
+            "inputoutput/same-minute-events-simple/input.json"), 10)
+        expected_simple = load_json("inputoutput/same-minute-events-simple/10-expected-output.json")
+        assert result_simple == expected_simple, "Result not expected for same minute events simple scenario (10 minutes window size)"
+
+        result_small = average_delivery_time_by_minute(parse_stream(
+            "inputoutput/same-minute-events-small/input.json"), 10)
+        expected_small = load_json("inputoutput/same-minute-events-small/10-expected-output.json")
+        assert result_small == expected_small, "Result not expected for same minute events small scenario (10 minutes window size)"
+
+    def test_same_timestamp_events(self):
+        "Test the case where multiple events have the same timestamp."
+        result = average_delivery_time_by_minute(parse_stream("inputoutput/same-timestamp-events/input.json"), 10)
+        expected = load_json("inputoutput/same-timestamp-events/10-expected-output.json")
+        assert result == expected, "Result not expected for same timestamp events scenario (10 minutes window size)"
+
+    def test_complex(self):
+        "Test the complex case - a mix of all the previous cases."
+
+        result_10 = average_delivery_time_by_minute(parse_stream("inputoutput/complex/input.json"), 10)
+        expected_10 = load_json("inputoutput/complex/10-expected-output.json")
+        assert result_10 == expected_10, "Result not as expected for the complex scenario (10 minutes window size)"
+
+        result_3 = average_delivery_time_by_minute(parse_stream("inputoutput/complex/input.json"), 3)
+        expected_3 = load_json("inputoutput/complex/3-expected-output.json")
+        assert result_3 == expected_3, "Result not as expected for the complex scenario (3 minutes window size)"
+
+        result_2 = average_delivery_time_by_minute(parse_stream("inputoutput/complex/input.json"), 2)
+        expected_2 = load_json("inputoutput/complex/2-expected-output.json")
+        assert result_2 == expected_2, "Result not as expected for the complex scenario (2 minutes window size)"
+
+    def test_assumption_1(self):
+        "Test the assumption 1 - interval is exclusive start and inclusive ending."
+        result = average_delivery_time_by_minute(parse_stream("inputoutput/assumption-1/input.json"), 10)
+        expected = load_json("inputoutput/assumption-1/10-expected-output.json")
+        assert result == expected, "Result not as expected for the assumption 1 scenario (10 minutes window size)"
 
 
 class TestStressAverageDeliveryTimeByMinute(TestCase):
