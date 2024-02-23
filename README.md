@@ -49,6 +49,8 @@ Some of these tests were actually generated to _stress test_ the program. This m
 | 100 000     | 100         | 3s183ms      | 2m55s       | x55.0       |
 | 1 000 000   | 10          | 29s303ms     | -           | -           |
 
+**PS**: The old version is located in the [old-version branch](https://github.com/rickerp/unbabel-backend-engineering-challenge/tree/old-version). The improvement is calculated by dividing the old version's elapsed time by the new version's elapsed time. (e.g. 33ms / 28ms = 1.18x faster
+
 ## Analysis 
 
 The comparison clearly shows that the new version is significantly faster than the old one. The old version used a simple minute-by-minute iteration from the first to the last timestamp, checking a list of events each time to see if they fell within the window interval. After that, it checked the window interval event list for events that were no longer within the window interval. This process was quite slow, especially as the number of events increased. This was due to various reasons, one of which was that the input JSON file was being loaded entirely into memory at the start.
