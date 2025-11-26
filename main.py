@@ -60,15 +60,19 @@ def average_delivery_time_by_minute(
     """
     within_window: list[Event] = []  # List of events that are within the window_size
     avgs_by_minute: list[AverageDeliveryTimeDict] = []
+    def get_window_start(window_end): return window_end - timedelta(minutes=window_size)
 
+    # Iterate over the events stream - only load one event at a time
     for event_i in events_stream:
         window_end = round_ceil_to_minute((within_window[-1] if within_window else event_i)["timestamp"])
-        while window_end < event_i["timestamp"]:  # Assumption 1 - Exclusive start (README.md)
-            # Removal of outdated events (outside the window)
+
+        # Iterate over the window until the minute right before the current event
+        # Assumption 1 - Exclusive start (README.md)
+        while window_end < event_i["timestamp"]:
+            # Remove outdated events (outside the window)
             while len(within_window) > 0 and \
-                    within_window[0]["timestamp"] <= (window_end - timedelta(minutes=window_size)):
-                # Remove the first element, if its timestamp is less than the window's start (window_end - window_size)
-                within_window.pop(0)
+                    within_window[0]["timestamp"] <= get_window_start(window_end):
+                within_window = within_window[1:]
 
             avgs_by_minute.append({
                 "date": str(window_end),
@@ -82,7 +86,7 @@ def average_delivery_time_by_minute(
         return avgs_by_minute
 
     # Removal of last outdated events
-    while len(within_window) > 0 and within_window[0]["timestamp"] <= (window_end - timedelta(minutes=window_size)):
+    while len(within_window) > 0 and within_window[0]["timestamp"] <= get_window_start(window_end):
         within_window.pop(0)
 
     # Assumption 2 - Start with an average time of 0 and end with the last event first minute contribution (README.md)
